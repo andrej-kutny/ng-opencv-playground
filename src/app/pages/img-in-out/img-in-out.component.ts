@@ -78,7 +78,10 @@ export class ImgInOutComponent {
             // Convert to cv.Mat
             const mat = this.opencv.cv().matFromImageData(imgData);
             if (mat) {
-              this.opencv.src.set(mat);
+              this.opencv.src.update(original => {
+                original?.delete();
+                return mat;
+              });
               this.imageUploaded.set(true);
             }
           }
@@ -102,25 +105,69 @@ export class ImgInOutComponent {
     e.preventDefault();
 
     if (!this.useMagnifier) {
-      return;
+        return;
     }
     
     const canvas = e.target as HTMLCanvasElement;
     const rect = canvas.getBoundingClientRect();
-
     const magnifier = document.getElementById('dst-magnifier') as HTMLDivElement;
-    const [x, y] = (e instanceof MouseEvent) ? [e.clientX, e.clientY] : [e.touches[0].clientX, e.touches[0].clientY];
-
-    // Update background position based on cursor position
-    const bgX = x * (canvas.width / rect.width);
-    const bgY = y * (canvas.height / rect.height);
     
-    magnifier.style.left = Math.round(x - magnifier.clientWidth / 2) + "px";
-    magnifier.style.top = Math.round(y - magnifier.clientHeight / 2) + "px";
-      
+    // Get cursor position
+    const [clientX, clientY] = (e instanceof MouseEvent) ? 
+        [e.clientX, e.clientY] : 
+        [e.touches[0].clientX, e.touches[0].clientY];
+
+    // Calculate the actual image dimensions and position within the canvas container
+    const imageAspectRatio = canvas.width / canvas.height;
+    const containerAspectRatio = rect.width / rect.height;
+    
+    let imageWidth, imageHeight, imageX, imageY;
+    
+    if (imageAspectRatio > containerAspectRatio) {
+        // Image is constrained by width
+        imageWidth = rect.width;
+        imageHeight = rect.width / imageAspectRatio;
+        imageX = 0;
+        imageY = (rect.height - imageHeight) / 2;
+    } else {
+        // Image is constrained by height
+        imageHeight = rect.height;
+        imageWidth = rect.height * imageAspectRatio;
+        imageX = (rect.width - imageWidth) / 2;
+        imageY = 0;
+    }
+
+    // Get cursor position relative to the actual image
+    const relativeX = clientX - rect.left - imageX;
+    const relativeY = clientY - rect.top - imageY;
+
+    // Check if cursor is within image bounds
+    if (relativeX < 0 || relativeX > imageWidth || relativeY < 0 || relativeY > imageHeight) {
+        magnifier.style.display = 'none';
+        canvas.style.cursor = 'default';
+        return;
+    }
+    canvas.style.cursor = 'none';
+
+    // Calculate background position based on relative position within the actual image
+    const bgX = (relativeX / imageWidth) * canvas.width;
+    const bgY = (relativeY / imageHeight) * canvas.height;
+    
+    magnifier.style.left = Math.round(clientX - magnifier.clientWidth / 2) + "px";
+    magnifier.style.top = Math.round(clientY - magnifier.clientHeight / 2) + "px";
+    
     magnifier.style.display = 'inline';    
     const zoomFactor = this.zoomFactor();
-    magnifier.style.backgroundPosition = `-${(bgX * zoomFactor) - magnifier.clientWidth / 2}px -${(bgY * zoomFactor) - magnifier.clientHeight / 2}px`;
+    
+    // Calculate maximum background positions
+    const maxBgX = (canvas.width * zoomFactor) - magnifier.clientWidth;
+    const maxBgY = (canvas.height * zoomFactor) - magnifier.clientHeight;
+    
+    // Ensure background position values stay within bounds (not negative and not exceeding max)
+    const bgPosX = Math.min(maxBgX, Math.max(0, (bgX * zoomFactor) - magnifier.clientWidth / 2));
+    const bgPosY = Math.min(maxBgY, Math.max(0, (bgY * zoomFactor) - magnifier.clientHeight / 2));
+    
+    magnifier.style.backgroundPosition = `-${bgPosX}px -${bgPosY}px`;
   }
 
   public leaveMagnifier() {

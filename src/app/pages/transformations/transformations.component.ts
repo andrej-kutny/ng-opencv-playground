@@ -10,6 +10,7 @@ import { Laplacian } from '../../features/transformations/laplacian';
 import { Erode } from '../../features/transformations/erode';
 import { Dilate } from '../../features/transformations/dilate';
 import { Invert } from '../../features/transformations/invert';
+import { HsvInRange } from '../../features/transformations/hsv-in-range';
 
 @Component({
   selector: 'app-transformations',
@@ -27,6 +28,7 @@ export class TransformationsComponent {
     new Erode(this.opencv), 
     new Dilate(this.opencv),
     new Invert(this.opencv),
+    new HsvInRange(this.opencv),
   ];
   
   private _transformations = signal<Transformation[]>([]);
@@ -36,26 +38,38 @@ export class TransformationsComponent {
 
   constructor() {
     effect(() => {
-      const cv = this.opencv.cv();
-      if (!cv) {
-        return;
-      }
-      const src = this.opencv.src();
-      if (!src) {
-        return;
-      }
-      let dst = new cv.Mat();
-      src.copyTo(dst);
-      const transformations = this.transformations();
-      for (const transformation of transformations) {
-        for (const [k, v] of Object.entries(transformation.config)) {
-          v.value(); // this is just to trigger the effect when the value changes
+      const process = () => {
+        const cv = this.opencv.cv();
+        if (!cv) {
+          return;
         }
-        if (transformation.enabled()) {
-          transformation.apply(dst, dst);
+        const src = this.opencv.src();
+        if (!src) {
+          return;
         }
+        let dst = new cv.Mat();
+        src.copyTo(dst);
+        const transformations = this.transformations();
+        for (const transformation of transformations) {
+          for (const [k, v] of Object.entries(transformation.config)) {
+            v.value(); // this is just to trigger the effect when the value changes
+          }
+          if (transformation.enabled()) {
+            try {
+              transformation.apply(dst, dst);
+            } catch (e) {
+              console.error(e);
+              dst.delete();
+              process();
+            }
+          }
+        }
+        this.opencv.dst.update(original => {
+          original?.delete();
+          return dst;
+        });
       }
-      this.opencv.dst.set(dst);
+      process();
     });
   }
 
