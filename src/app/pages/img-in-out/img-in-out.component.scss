@@ -1,0 +1,72 @@
+.in-out-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .img-magnifier-glass {
+        position: absolute;
+        border: 3px solid #000;
+        cursor: none;
+        width: 100px;
+        height: 100px;
+        left: 20px;
+        top: 20px;
+        pointer-events: none; // Prevents the glass from interfering with mousemove events
+        display: none; // Initially hidden until mouse moves over canvas
+        z-index: 1000;
+    }
+
+
+    .in-out-item {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            margin: auto;
+            position: relative;
+        }
+        
+        > * {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        &:first-child {
+            border-right: 1px solid darkgray;
+            &:hover {
+                cursor: pointer;
+            }
+            &:hover::after {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 100%;
+                height: 100%;
+                vertical-align: middle;
+                text-align: center;
+                color: white;
+                background-color: rgba(0, 0, 0, 0.8);
+                content: 'Upload image';
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        &:last-child {
+            text-align: right;
+        }
+    }
+}

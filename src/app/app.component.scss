@@ -1,0 +1,26 @@
+#page-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+
+  #img-input-field {
+    flex: 1;
+    min-height: 200px;
+    max-height: 20vh;
+    background-color: gray;
+    flex-wrap: wrap;
+  }
+
+  #transform-processes-field {
+    flex: 1;
+    min-height: 100px;
+    max-height: min(150px, 15vh);
+    background-color: red;
+  }
+
+  #transformations-field {
+    flex: 1;
+    // background-color: blue;
+  }
+}

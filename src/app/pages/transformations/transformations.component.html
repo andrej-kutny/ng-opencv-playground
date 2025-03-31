@@ -1,0 +1,80 @@
+<div id="transformations-container">
+    <div class="transformation-card">
+        <span class="transformation-card-title"> 
+            <h1> Add new </h1>
+        </span>
+        <div class="transformation-card-config">
+            <span>Index</span>
+            <span><input type="number" min="0" [max]="transformations().length" step="1" [(ngModel)]="addingIndex"/></span>
+            <span>Name</span>
+            @let t = addingTransformation();
+            <span><select [value]="t.name" (change)="updateAddingTransformation($event)">
+                @for (t of availableTransformations; track t.name) {
+                    <option [value]="t.name">{{ t.name }}</option>
+                }
+            </select></span>
+            @for (field of t.config | keyvalue; track field.key) {
+                <span> {{ field.key }} </span>
+                <span>
+                @if (isMinMaxField(field.value)) {
+                    <input type="range" 
+                        [min]="field.value.min" 
+                        [max]="field.value.max" 
+                        [step]="field.value.step" 
+                        [value]="field.value.value()"
+                        [(ngModel)]="field.value.value"
+                    />{{ field.value.value() }}
+                } @else if (isCheckboxField(field.value)) {
+                    <input type="checkbox" [(ngModel)]="field.value.value"/>
+                } @else if (isOptionsField(field.value)) {  
+                    <select [(ngModel)]="field.value.value">
+                        @for (option of field.value.options; track option) {
+                            <option [value]="option">{{ option }}</option>
+                        }
+                    </select>
+                }
+                </span>
+            }
+        </div>
+        <div style="margin: 10px 5px;"><button style="width: 100%;" (click)="addTransformation()">Add</button></div>
+    </div>
+
+    @for (transformation of transformations(); track $index) {
+        <div class="transformation-card">
+            <span class="transformation-card-title"> 
+                <div class="header">
+                    <span class="move" (click)="moveTransformation($index, $index-1)"><</span>
+                    <span class="remove" (click)="removeTransformation($index)">X</span>
+                    <span class="move" (click)="moveTransformation($index, $index+1)">></span>
+                </div>
+                <h1> {{ transformation.name }} </h1>
+            </span>
+            <div class="transformation-card-config">
+                <span>Enabled</span>
+                <span><input type="checkbox" [(ngModel)]="transformation.enabled"/></span>
+                @for (field of transformation.config | keyvalue; track field.key) {
+                    <span> {{ field.key }} </span>
+                    <span>
+                    @if (isMinMaxField(field.value)) {
+                        <input type="range" 
+                            [min]="field.value.min" 
+                            [max]="field.value.max" 
+                            [step]="field.value.step" 
+                            [value]="field.value.value()"
+                            [(ngModel)]="field.value.value"
+                        />{{ field.value.value() }}
+                    } @else if (isCheckboxField(field.value)) {
+                        <input type="checkbox" [(ngModel)]="field.value.value"/>
+                    } @else if (isOptionsField(field.value)) {  
+                        <select [(ngModel)]="field.value.value">
+                            @for (option of field.value.options; track option) {
+                                <option [value]="option">{{ option }}</option>
+                            }
+                        </select>
+                    }
+                    </span>
+                }
+            </div>
+        </div>
+    }
+</div>

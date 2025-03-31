@@ -1,0 +1,108 @@
+#transformations-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 10px;
+    
+    .transformation-card {
+        $radius: 5px;
+        $border-col: darkgray;
+
+        border: 1px solid $border-col;
+        border-radius: $radius;
+        padding: 0;
+        margin: 0;
+        flex: 0 0 calc(100vw - 25px);
+        @media (min-width: 576px) {
+            flex: 0 0 calc(50vw - 25px);
+        }
+        @media (min-width: 768px) {
+            flex: 0 0 calc(33vw - 25px);
+        }
+        @media (min-width: 992px) {
+            flex: 0 0 calc(25vw - 25px);
+        }
+        @media (min-width: 1200px) {
+            flex: 0 0 calc(1200px / 5 - 25px);
+        }
+
+        .transformation-card-title {
+            display: flex;
+            flex-direction: column;
+            // justify-content: space-between;
+            // align-items: center;
+            
+            .header {
+                display: flex;
+                flex: 1 1 100%;
+                justify-content: space-between;
+                flex-wrap: nowrap;
+                margin: 0;
+                font-size: 0.66rem;
+                & > * {
+                    text-align: center;
+                    padding: 0px 4px 0 4px;
+                    cursor: pointer;
+                    vertical-align: middle;
+                    display: inline-block;
+                    background: $border-col;
+                    margin: 0;
+                    height: .8rem;
+                }
+                .remove {
+                    color: rgb(255, 0, 0);
+                    border-radius: 0 0 $radius $radius;
+                    &:hover {
+                        background: rgb(255, 0, 0);
+                        color: white;
+                    }
+                }
+                .move {
+                    color: rgb(255, 255, 0);
+                    &:hover {
+                        background: rgb(199, 199, 0);
+                        color: white;
+                    }
+                }
+            }
+            h1 {
+                font-size: 1.25rem;
+                padding: 1px 3px 3px 3px;
+                margin: 0;
+                text-align: left;
+                color: #333;
+                font-weight: 550;
+                display: inline-block;
+                // width: 100%;
+            }
+        }
+
+        .transformation-card-config {
+            display: grid;
+            grid-template-columns: 33% 1fr;
+            & > *:nth-child(2n) {
+                text-align: right;
+                input[type="range"] {
+                    flex: 1;
+                    min-width: 0;
+                    width: auto;
+                }
+                select {
+                    max-width: 100%;
+                }
+            }
+            & > *:nth-child(2n-1) {
+                font-style: italic;
+            }
+            & > *:nth-child(4n-3), & > *:nth-child(4n-2) {
+                background: rgba(0,0,0,.10);
+            }
+            & > * {
+                overflow-wrap: break-word;
+                word-break: break-word;
+                min-width: 0;
+            }
+        }
+    }
+}

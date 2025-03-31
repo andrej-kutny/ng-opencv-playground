@@ -1,0 +1,18 @@
+<span class="in-out-container">
+    @let imgReady = imageUploaded();
+    <span class="in-out-item" (click)="fileInput.click()">
+        <input #fileInput type="file" (change)="onImageUpload($event)" style="display: none;" />
+        @if (!imgReady) {
+            <span>Upload image</span>
+        }
+        <canvas id="image-src-canvas"></canvas>
+    </span>
+    <span class="in-out-item"> 
+        @if (!imgReady) {
+            <span>Result</span>
+        }
+        <!-- https://www.w3schools.com/howto/howto_js_image_magnifier_glass.asp -->
+        <canvas id="image-dst-canvas" (mousemove)="moveMagnifier($event)" (mouseleave)="leaveMagnifier()"></canvas>
+    </span>
+    <div class="img-magnifier-glass" id="dst-magnifier"></div>
+</span>
