@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --output-path docs/browser --base-href /ng-opencv-playground/browser/ && mv docs/browser/* docs/",
+    "build": "ng build --output-path docs --base-href /ng-opencv-playground/ && mv docs/browser/* docs/",
+    "workflow-build": "rm -rf docs && ng build --output-path docs --base-href /ng-opencv-playground/ && mv docs/browser/* docs/ && rmdir docs/browser",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
