@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, OnInit, signal, Signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { ImgInOutComponent } from "./pages/img-in-out/img-in-out.component";
 import { TransformationsComponent } from "./pages/transformations/transformations.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, ImgInOutComponent, TransformationsComponent],
+  imports: [CommonModule, ImgInOutComponent, TransformationsComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
