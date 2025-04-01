@@ -10,7 +10,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # This is important! Gives permission to push
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
       run: npm run workflow-build
       
     - name: Deploy to GitHub Pages
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      if: github.event_name == 'push'
       run: |
         git config --global user.name github-actions[bot]
         git config --global user.email github-actions[bot]@users.noreply.github.com
