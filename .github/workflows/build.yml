@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # This is important! Gives permission to push
 
     steps:
     - uses: actions/checkout@v4
@@ -27,7 +29,10 @@ jobs:
     - name: Deploy to GitHub Pages
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: |
-        git config --global user.name github-actions
-        git config --global user.email github-actions@github.com
+        git config --global user.name github-actions[bot]
+        git config --global user.email github-actions[bot]@users.noreply.github.com
+        git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
         git add -f docs/
         git diff --staged --quiet || (git commit -m "Deploy to GitHub Pages" && git push)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
