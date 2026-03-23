@@ -1,6 +1,6 @@
 # NgOpencvPlayground
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.5.
+Check [live website](https://andrej-kutny.github.io/ng-opencv-playground/)!
 
 ## Development server
 
