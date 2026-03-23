@@ -1,9 +1,17 @@
 <span class="in-out-container">
     @let imgReady = imageUploaded();
-    <span class="in-out-item" (click)="fileInput.click()">
-        <input #fileInput type="file" (change)="onImageUpload($event)" style="display: none;" />
+    <span class="in-out-item"
+        (click)="fileInput.click()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        [class.drag-over]="isDragOver()">
+        <input #fileInput type="file" accept="image/*" (change)="onImageUpload($event)" style="display: none;" />
         @if (!imgReady) {
-            <span>Upload image</span>
+            <span class="upload-hint">
+                <span class="upload-icon">&#8681;</span>
+                <span>Drag & drop or click to upload</span>
+            </span>
         }
         <canvas id="image-src-canvas"></canvas>
     </span>

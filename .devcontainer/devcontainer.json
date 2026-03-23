@@ -1,0 +1,37 @@
+{
+    "name": "ng-cv-playground-dev",
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:24-bookworm",
+    "build": {
+    },
+    "workspaceFolder": "/dist/src/ng-cv-playground",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/dist/src/ng-cv-playground,type=bind",
+    "mounts": [
+      "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,readonly",
+      "type=volume,source=ng-cv-playground-node_modules,target=${containerWorkspaceFolder}/node_modules",
+      "source=${localEnv:HOME}/.claude-docker,target=/root/.claude,type=bind"
+    ],
+    "features": {
+      "ghcr.io/devcontainers/features/git:1": {},
+      "ghcr.io/devcontainers-extra/features/angular-cli:2": {
+        "version": "21.0.0"
+      }
+    },
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "angular.ng-template",
+          "dbaeumer.vscode-eslint",
+          "esbenp.prettier-vscode",
+          "ms-vscode.vscode-typescript-next",
+          "editorconfig.editorconfig",
+          "angular.vscode-ng-language-service",
+          "ms-vscode.js-debug",
+          "anthropic.claude-code"
+        ]
+      }
+    },
+    "remoteUser": "root",
+    "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash && npm install",
+    "postStartCommand": "grep -q 'bash-completion/completions/git' ~/.bashrc || echo 'source /usr/share/bash-completion/completions/git' >> ~/.bashrc"
+  }
+  

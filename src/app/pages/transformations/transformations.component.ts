@@ -1,6 +1,7 @@
-import { Component, effect, inject, input, output, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { CheckboxField, MinMaxField, OptionsField, Transformation } from '../../features/transformations/transformations.model';
 import { OpencvService } from '../../services/opencv.service';
+import { StorageService } from '../../services/storage.service';
 import { GaussianBlur } from '../../features/transformations/gaussian-blur';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +12,12 @@ import { Erode } from '../../features/transformations/erode';
 import { Dilate } from '../../features/transformations/dilate';
 import { Invert } from '../../features/transformations/invert';
 import { HsvInRange } from '../../features/transformations/hsv-in-range';
+import { AdaptiveThreshold } from '../../features/transformations/adaptive-threshold';
+import { OtsuBinarization } from '../../features/transformations/otsu-binarization';
+import { Brightness } from '../../features/transformations/brightness';
+import { Contrast } from '../../features/transformations/contrast';
+import { HistogramEqualization } from '../../features/transformations/histogram-equalization';
+import { IntensityClamp } from '../../features/transformations/intensity-clamp';
 
 @Component({
   selector: 'app-transformations',
@@ -20,6 +27,7 @@ import { HsvInRange } from '../../features/transformations/hsv-in-range';
 })
 export class TransformationsComponent {
   private opencv = inject(OpencvService);
+  private storage = inject(StorageService);
   public readonly availableTransformations: Transformation[] = [
     new GaussianBlur(this.opencv), 
     new Threshold(this.opencv), 
@@ -29,6 +37,12 @@ export class TransformationsComponent {
     new Dilate(this.opencv),
     new Invert(this.opencv),
     new HsvInRange(this.opencv),
+    new AdaptiveThreshold(this.opencv),
+    new OtsuBinarization(this.opencv),
+    new Brightness(this.opencv),
+    new Contrast(this.opencv),
+    new HistogramEqualization(this.opencv),
+    new IntensityClamp(this.opencv),
   ];
   
   private _transformations = signal<Transformation[]>([]);
@@ -37,6 +51,8 @@ export class TransformationsComponent {
   public addingTransformation = signal<Transformation>(this.availableTransformations[0]);
 
   constructor() {
+    this.restoreTransformations();
+
     effect(() => {
       const process = () => {
         const cv = this.opencv.cv();
@@ -60,7 +76,8 @@ export class TransformationsComponent {
             } catch (e) {
               console.error(e);
               dst.delete();
-              process();
+              return;
+              // process();
             }
           }
         }
@@ -70,6 +87,7 @@ export class TransformationsComponent {
         });
       }
       process();
+      this.persistTransformations();
     });
   }
 
@@ -142,5 +160,37 @@ export class TransformationsComponent {
     if (transformation) {
       this.addingTransformation.set(transformation);
     }
-  } 
+  }
+
+  private persistTransformations() {
+    const transformations = this.transformations();
+    const data = transformations.map(t => ({
+      name: t.name,
+      enabled: t.enabled(),
+      config: Object.fromEntries(
+        Object.entries(t.config).map(([key, field]) => [key, field.value()])
+      )
+    }));
+    this.storage.saveTransformations(data);
+  }
+
+  private restoreTransformations() {
+    const stored = this.storage.loadTransformations();
+    if (!stored || stored.length === 0) return;
+
+    const restored: Transformation[] = [];
+    for (const item of stored) {
+      const template = this.availableTransformations.find(t => t.name === item.name);
+      if (!template) continue;
+      const t = template.clone();
+      t.enabled.set(item.enabled);
+      for (const [key, value] of Object.entries(item.config)) {
+        if (t.config[key]) {
+          t.config[key].value.set(value);
+        }
+      }
+      restored.push(t);
+    }
+    this._transformations.set(restored);
+  }
 }

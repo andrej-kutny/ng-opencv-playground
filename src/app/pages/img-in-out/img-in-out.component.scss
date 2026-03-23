@@ -42,8 +42,21 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+        .upload-hint {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+
+            .upload-icon {
+                font-size: 2rem;
+            }
+        }
+
         &:first-child {
             border-right: 1px solid darkgray;
+            transition: background-color 0.2s ease;
             &:hover {
                 cursor: pointer;
             }
@@ -58,10 +71,15 @@
                 text-align: center;
                 color: white;
                 background-color: rgba(0, 0, 0, 0.8);
-                content: 'Upload image';
+                content: 'Drag & drop or click to upload';
                 display: flex;
                 align-items: center;
                 justify-content: center;
+            }
+            &.drag-over {
+                background-color: rgba(100, 149, 237, 0.3);
+                outline: 2px dashed cornflowerblue;
+                outline-offset: -4px;
             }
         }
 

@@ -33,7 +33,7 @@ export class Threshold implements Transformation {
         const thresh = this.config.thresh.value();
         const maxval = this.config.maxval.value();
         const type = this.config.type.value();
-        cv.threshold(src, dst, thresh, maxval, type);
+        cv.threshold(src, dst, thresh, maxval, cv[type]);
     };
 
     clone () {

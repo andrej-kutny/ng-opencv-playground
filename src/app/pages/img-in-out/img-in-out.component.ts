@@ -1,5 +1,6 @@
-import { Component, effect, input, signal, untracked } from '@angular/core';
+import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { OpencvService } from '../../services/opencv.service';
+import { StorageService } from '../../services/storage.service';
 
 @Component({
   selector: 'app-img-in-out',
@@ -9,10 +10,13 @@ import { OpencvService } from '../../services/opencv.service';
 })
 export class ImgInOutComponent {
   public imageUploaded = signal(false);
+  public isDragOver = signal(false);
   public zoomFactor = signal(2);
   private useMagnifier = false;
+  private storage = inject(StorageService);
 
   constructor(private opencv: OpencvService) {
+    this.restoreImage();
     effect(() => {
       const src = this.src();
       const cv = untracked(() => this.opencv.cv());
@@ -57,38 +61,77 @@ export class ImgInOutComponent {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
-      console.log(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          // Create a canvas to draw the image
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          console.log(canvas);
+      this.loadImageFile(file);
+    }
+  }
 
-          // Draw image on canvas
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0);
-            // Get image data from canvas
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            console.log(imgData);
-            // Convert to cv.Mat
-            const mat = this.opencv.cv().matFromImageData(imgData);
-            if (mat) {
-              this.opencv.src.update(original => {
-                original?.delete();
-                return mat;
-              });
-              this.imageUploaded.set(true);
-            }
-          }
-        };
-        img.src = e.target?.result as string;
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(true);
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(false);
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(false);
+    const file = event.dataTransfer?.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      this.loadImageFile(file);
+    }
+  }
+
+  private loadImageFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      this.loadImageFromDataUrl(dataUrl);
+      this.storage.saveImage(dataUrl);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  private loadImageFromDataUrl(dataUrl: string) {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const mat = this.opencv.cv().matFromImageData(imgData);
+        if (mat) {
+          this.opencv.src.update(original => {
+            original?.delete();
+            return mat;
+          });
+          this.imageUploaded.set(true);
+        }
+      }
+    };
+    img.src = dataUrl;
+  }
+
+  private async restoreImage() {
+    const dataUrl = await this.storage.loadImage();
+    if (dataUrl) {
+      // Wait for OpenCV to be ready before restoring
+      const waitForCv = () => {
+        if (this.opencv.cv()) {
+          this.loadImageFromDataUrl(dataUrl);
+        } else {
+          requestAnimationFrame(waitForCv);
+        }
       };
-      reader.readAsDataURL(file);
+      waitForCv();
     }
   }
   
