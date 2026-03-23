@@ -1,10 +1,11 @@
 import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { OpencvService } from '../../services/opencv.service';
 import { StorageService } from '../../services/storage.service';
+import { ResizeHandleDirective } from '../../directives/resize-handle.directive';
 
 @Component({
   selector: 'app-img-in-out',
-  imports: [],
+  imports: [ResizeHandleDirective],
   templateUrl: './img-in-out.component.html',
   styleUrl: './img-in-out.component.scss'
 })
@@ -12,10 +13,13 @@ export class ImgInOutComponent {
   public imageUploaded = signal(false);
   public isDragOver = signal(false);
   public zoomFactor = signal(2);
+  public inputPanelWidth: number | undefined;
   private useMagnifier = false;
   private storage = inject(StorageService);
 
   constructor(private opencv: OpencvService) {
+    const layout = this.storage.loadLayout();
+    this.inputPanelWidth = layout.inputOutputSplit;
     this.restoreImage();
     effect(() => {
       const src = this.src();
@@ -216,5 +220,10 @@ export class ImgInOutComponent {
   public leaveMagnifier() {
     const magnifier = document.getElementById('dst-magnifier') as HTMLDivElement;
     magnifier.style.display = 'none';
+  }
+
+  public onInputPanelResized(width: number) {
+    this.inputPanelWidth = width;
+    this.storage.saveLayout({ inputOutputSplit: width });
   }
 }

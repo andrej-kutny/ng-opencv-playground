@@ -5,22 +5,30 @@
   overflow: hidden;
 
   #img-input-field {
-    flex: 1;
-    min-height: 200px;
-    max-height: 20vh;
+    flex: none;
+    height: 20vh;
+    min-height: 80px;
     background-color: gray;
     flex-wrap: wrap;
   }
 
-  #transform-processes-field {
-    flex: 1;
-    min-height: 100px;
-    max-height: min(150px, 15vh);
-    background-color: red;
+  .resize-handle {
+    flex: none;
+    height: 6px;
+    background-color: #ccc;
+    position: relative;
+    z-index: 10;
+    transition: background-color 0.15s;
+
+    &:hover,
+    &:active {
+      background-color: #888;
+    }
   }
 
   #transformations-field {
     flex: 1;
-    // background-color: blue;
+    min-height: 100px;
+    overflow: auto;
   }
 }

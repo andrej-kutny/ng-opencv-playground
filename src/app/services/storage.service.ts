@@ -5,11 +5,17 @@ const DB_VERSION = 1;
 const IMAGE_STORE = 'images';
 const IMAGE_KEY = 'uploaded-image';
 const TRANSFORMATIONS_KEY = 'ng-cv-transformations';
+const LAYOUT_KEY = 'ng-cv-layout';
 
 interface StoredTransformation {
   name: string;
   enabled: boolean;
   config: { [key: string]: any };
+}
+
+export interface LayoutSettings {
+  imgSectionHeight?: number;
+  inputOutputSplit?: number;
 }
 
 @Injectable({
@@ -68,6 +74,21 @@ export class StorageService {
       return JSON.parse(data);
     } catch {
       return null;
+    }
+  }
+
+  saveLayout(settings: LayoutSettings): void {
+    const current = this.loadLayout();
+    localStorage.setItem(LAYOUT_KEY, JSON.stringify({ ...current, ...settings }));
+  }
+
+  loadLayout(): LayoutSettings {
+    const data = localStorage.getItem(LAYOUT_KEY);
+    if (!data) return {};
+    try {
+      return JSON.parse(data);
+    } catch {
+      return {};
     }
   }
 }

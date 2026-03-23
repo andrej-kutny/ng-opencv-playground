@@ -1,4 +1,5 @@
 <div id="page-layout">
-  <div id="img-input-field"><app-img-in-out></app-img-in-out></div>
+  <div id="img-input-field" [style.height.px]="imgSectionHeight"><app-img-in-out></app-img-in-out></div>
+  <div class="resize-handle" appResizeHandle="vertical" (resized)="onImgSectionResized($event)"></div>
   <div id="transformations-field"><app-transformations></app-transformations></div>
 </div>
