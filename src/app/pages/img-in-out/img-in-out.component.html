@@ -1,6 +1,6 @@
 <span class="in-out-container">
     @let imgReady = imageUploaded();
-    <span class="in-out-item"
+    <span class="in-out-item" [style.width.px]="inputPanelWidth"
         (click)="fileInput.click()"
         (dragover)="onDragOver($event)"
         (dragleave)="onDragLeave($event)"
@@ -15,7 +15,8 @@
         }
         <canvas id="image-src-canvas"></canvas>
     </span>
-    <span class="in-out-item"> 
+    <span class="resize-handle-h" appResizeHandle="horizontal" (resized)="onInputPanelResized($event)"></span>
+    <span class="in-out-item">
         @if (!imgReady) {
             <span>Result</span>
         }

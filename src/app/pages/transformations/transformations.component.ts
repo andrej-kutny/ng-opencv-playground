@@ -18,6 +18,7 @@ import { Brightness } from '../../features/transformations/brightness';
 import { Contrast } from '../../features/transformations/contrast';
 import { HistogramEqualization } from '../../features/transformations/histogram-equalization';
 import { IntensityClamp } from '../../features/transformations/intensity-clamp';
+import { Crop } from '../../features/transformations/crop';
 
 @Component({
   selector: 'app-transformations',
@@ -43,6 +44,7 @@ export class TransformationsComponent {
     new Contrast(this.opencv),
     new HistogramEqualization(this.opencv),
     new IntensityClamp(this.opencv),
+    new Crop(this.opencv),
   ];
   
   private _transformations = signal<Transformation[]>([]);
